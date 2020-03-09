@@ -1,0 +1,150 @@
+{% extends 'index.html' %}
+{% block content1 %}
+    <script>
+    $(function () {
+
+
+        $.ajax({
+            url: '/goods/recommend1',
+            dataType: "json",
+            async: true,
+            data: {"gtype": {{good_info.gtype_id}}},
+            type: 'GET',
+            success:function (req) {
+                req=JSON.parse(req);
+                $(req).each(function (i, val) {
+                    $('#r_info').append('<li>\n' +
+                        '<a href="/goods/detail?id='+val.pk+'"><img src="/static/images/'+val.fields.gpic+'"></a>\n' +
+                        '<h4><a href="/goods/detail?id='+val.pk+'">'+val.fields.gtitle+'</a></h4>\n' +
+                        '<div class="prize">￥'+val.fields.gprice+'</div>\n' +
+                        '</li>')
+                })
+            }
+
+        })
+
+
+       $('#add_num').click(function () {
+
+           num2 = parseInt($('#num1').val());
+           num3 = parseInt({{ good_info.gkucun }});
+
+           if(num2<1|num2>=num3)
+           {
+               $('#num1').val(1);
+               $('#total_prices').html({{ good_info.gprice }});
+           }
+
+           else {
+               $('#num1').val(num2+1);
+               total=(num2+1)*{{ good_info.gprice }};
+               $('#total_prices').html(total);
+
+           }
+       })
+        $('#dec_num').click(function () {
+
+           num2 = parseInt($('#num1').val());
+           if(num2<=1)
+           {
+               $('#num1').html(1);
+               $('#total_prices').html({{ good_info.gprice }});
+           }
+
+           else {
+               $('#num1').val(num2-1);
+               total=(num2-1)*{{ good_info.gprice }};
+               $('#total_prices').html(total);
+           }
+       })
+
+
+    })
+    </script>
+<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>
+				<span></span>
+				<ul class="subnav">
+					<li><a href="/goods/list?type=1" class="fruit">新鲜水果</a></li>
+					<li><a href="/goods/list?type=2" class="seafood">海鲜水产</a></li>
+					<li><a href="/goods/list?type=3" class="meet">猪牛羊肉</a></li>
+					<li><a href="/goods/list?type=4" class="egg">禽类蛋品</a></li>
+					<li><a href="/goods/list?type=5" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="/goods/list?type=6" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="/user/index">首页</a></li>
+
+				<li class="interval">|</li>
+				<li><a href="">抽奖</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="#">全部分类</a>
+		<span>></span>
+		<a href="#">新鲜水果</a>
+		<span>></span>
+		<a href="#">商品详情</a>
+	</div>
+
+	<div class="goods_detail_con clearfix">
+		<div class="goods_detail_pic fl"><img style="width: 350px;height: 350px" src="/static/images/{{ good_info.gpic }}"></div>
+
+		<div class="goods_detail_list fr">
+			<h3>{{ good_info.gtitle }}</h3>
+			<p>{{ good_info.gjianjie }}</p>
+			<div class="prize_bar">
+				<span class="show_pirze">¥<em>{{ good_info.gprice }}</em></span>
+				<span class="show_unit">单  位：{{ good_info.gunit }}</span>
+                <span id="kuncun" class="show_unit">库存：{{ good_info.gkucun }}</span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+				<div class="num_add fl">
+					<input type="text" id="num1" class="num_show fl" value="1">
+					<a href="javascript:;" id="add_num" class="add fr">+</a>
+					<a href="javascript:;" id="dec_num" class="minus fr">-</a>
+				</div>
+			</div>
+
+			<div class="total">总价：<em id="total_prices">{{ good_info.gprice }}</em></div>
+			<div class="operate_btn">
+				<a href="javascript:;" class="buy_btn">立即购买</a>
+				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul id="r_info">
+
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<ul class="detail_tab clearfix">
+				<li class="active">商品介绍</li>
+				<li>评论</li>
+			</ul>
+
+			<div class="tab_content">
+				<dl>
+					<dt>商品详情：</dt>
+                    {%autoescape off%}
+					<dd >{{ good_info.gcontent }}</dd>
+                    {%endautoescape%}
+				</dl>
+			</div>
+
+		</div>
+	</div>
+{% endblock %}
