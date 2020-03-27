@@ -8,6 +8,9 @@ def check_login(func):
         token = request.META.get('HTTP_AUTHORIZATION')
         if not token:
             token = request.GET.get('token')
+            if not token:
+                token = request.POST.get('token')
+
         if not token:
             result = {'code':109,'error':'need token'}
             return JsonResponse(result)
@@ -20,7 +23,7 @@ def check_login(func):
         #token校验成功
 
         username = res['username']
-        print(username)
+
         try:
             user=User.objects.get(name=username)
         except:
@@ -29,6 +32,6 @@ def check_login(func):
             result = {'code':110,'error':'the user is not existed'}
             return JsonResponse(result)
         #将user赋值给request对象
-        request.user=user
+        request.user = user
         return func(request,*args,**kwargs)
     return wrapper

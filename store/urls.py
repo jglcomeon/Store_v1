@@ -21,5 +21,6 @@ urlpatterns = [
     url(r'^user',include('user.urls')),
     url(r'^goods',include('goods.urls')),
     url(r'^cart',include('cart.urls')),
+    url(r'^pay',include('alipay.urls')),
     url(r'^tinymce/', include('tinymce.urls')),
 ]

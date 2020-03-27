@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'goods',
+    'cart',
+    'alipay',
     'tinymce',
 ]
 TINYMCE_DEFAULT_CONFIG = {
@@ -115,15 +117,15 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-Hans'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -136,3 +138,6 @@ STATICFILES_DIRS=[
 ]
 #开发阶段上传文件目录
 MEDIA_ROOT = os.path.join(BASE_DIR,'static')
+ALIPAY_PUBLIC = os.path.join(BASE_DIR, 'tools/alipay_public.txt')
+APP_PUBLIC = os.path.join(BASE_DIR, 'tools/app_public.txt')
+APP_PRIVATE = os.path.join(BASE_DIR, 'tools/app_private.txt')

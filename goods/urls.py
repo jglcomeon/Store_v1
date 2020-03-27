@@ -7,4 +7,5 @@ urlpatterns=[
     url(r'/list$',views.good_list),
     #根据价格获取商品列表
     url(r'/list1$',views.good_list1),
+
 ]

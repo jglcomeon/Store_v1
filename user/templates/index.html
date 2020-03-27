@@ -5,38 +5,12 @@
 	<title>天天生鲜-首页</title>
 	<link rel="stylesheet" type="text/css" href="/static/css/reset.css">
 	<link rel="stylesheet" type="text/css" href="/static/css/main.css">
+
 	<script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
-	<script type="text/javascript" src="/static/js/jquery-ui.min.js"></script>
+
 	<script type="text/javascript" src="/static/js/slide.js"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-    <script type="text/javascript">
-       $(function () {
-            $('#user_center').click(function () {
-             token = window.localStorage.getItem('dnblog_token');
-             csrf = $.cookie('csrftoken');
-             $.ajax({
-                 url:"/user/user_center",
-                 type:'post',
-                 data:{csrfmiddlewaretoken:csrf},
-                 beforeSend:function (request) {
-                     request.setRequestHeader("Authorization", token);
-                 },
-                 success:function (result) {
-                    if(result.code!=200){
-                        alert("由于您长时间未登陆，点击跳转登陆");
-                        window.location.replace("/user/login");
 
-                    }
-                    else window.location.replace("/user/user_center?token="+token);
-
-                 }
-
-             })
-
-
-        })
-       })
-    </script>
 </head>
 <body>
 	<div class="header_con">
@@ -46,7 +20,7 @@
 
 				<div class="login_btn fl">
 
-                    <a id="is_login" href="/user/login"></a>
+                    <a id="is_login" href="/user/login">登入</a>
 
 					<span>|</span>
 					<a href="/user/register">注册</a>
@@ -55,23 +29,23 @@
 					<span>|</span>
 					<a href="#" id="user_center">用户中心</a>
 					<span>|</span>
-					<a href="cart.html">我的购物车</a>
+					<a href="#" id="my_cart1">我的购物车</a>
 					<span>|</span>
-					<a href="user_center_order.html">我的订单</a>
+					<a href="javascript:;" id="my_order">我的订单</a>
 				</div>
 			</div>
 		</div>		
 	</div>
 
 	<div class="search_bar clearfix">
-		<a href="index.html" class="logo fl"><img src="/static/images/logo.png"></a>
+		<a href="/user/index" class="logo fl"><img src="/static/images/logo.png"></a>
 		<div class="search_con fl">
 			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
 			<input type="button" class="input_btn fr" name="" value="搜索">
 		</div>
 		<div class="guest_cart fr">
-			<a href="#" class="cart_name fl">我的购物车</a>
-			<div class="goods_count fl" id="show_count">2</div>
+			<a href="#" class="cart_name fl" id="my_cart">我的购物车</a>
+			<div class="goods_count fl" id="show_count"></div>
 		</div>
 	</div>
 {% block content1 %}
@@ -271,11 +245,64 @@
 	<script type="text/javascript" src="/static/js/slideshow.js"></script>
 	<script type="text/javascript">
         $(function () {
-             name1 = window.localStorage.getItem('dnblog_user');
+             name1 = $.cookie('username');
         if(name1)
         {
             $('#is_login').html(name1);
         }
+        token = window.localStorage.getItem('dnblog_token');
+           $.ajax(
+               {
+                   url:'/cart/get_count',
+                   dataType:'json',
+                   async:'true',
+                   beforeSend:function (request) {
+                       request.setRequestHeader("Authorization", token);
+                   },
+                   success:function (res) {
+                       if(res.code!='200'){
+                           $('#show_count').html('0');
+                       }
+                       else {
+                           $('#show_count').html(res.count1);
+                       }
+                   }
+
+               }
+           )
+
+
+            $('#user_center').click(function () {
+
+             csrf = $.cookie('csrftoken');
+             $.ajax({
+                 url:"/user/user_center",
+                 type:'post',
+                 data:{csrfmiddlewaretoken:csrf},
+                 beforeSend:function (request) {
+                     request.setRequestHeader("Authorization", token);
+                 },
+                 success:function (result) {
+                    if(result.code!=200){
+                        alert("由于您长时间未登陆，点击跳转登陆");
+                        window.location.replace("/user/login");
+
+                    }
+                    else window.location.replace("/user/user_center?token="+token);
+
+                 }
+
+             })
+        })
+          $('#my_cart' ).click(function () {
+              window.location.replace("/cart/my_cart?token="+token);
+          })
+        $('#my_cart1').click(function () {
+              window.location.replace("/cart/my_cart?token="+token);
+          })
+        $('#my_order').click(function () {
+            window.location.replace('/user/user_center?token='+token);
+        })
 
 		BCSlideshow('focuspic');
 		var oFruit = document.getElementById('fruit_more');

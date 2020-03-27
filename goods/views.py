@@ -10,6 +10,8 @@ def goods_detail(request):
     id = request.GET.get('id')
     try:
         good_info = GoodsInfo.objects.get(id=id)
+
+        name = good_info.gtype.title
     except:
         return HttpResponse("我们好像遇到一点问题了请稍后重试！")
 
@@ -46,3 +48,4 @@ def good_list1(request):
     cur_page = request.GET.get('page', 1)
     page = paginator.page(cur_page)
     return render(request, 'list.html', locals())
+

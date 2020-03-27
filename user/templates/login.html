@@ -15,6 +15,7 @@
                 upwd = $('#pwd').val();
                 r_m = $('#r_m').val();
                 csrf = $("[name='csrfmiddlewaretoken']").val();
+                window.localStorage.removeItem('dnblog_token');
                 $.ajax(
                     {
                         url:'/user/login',
@@ -25,8 +26,8 @@
                         success:function (result) {
                             if(result.code==200){
                                 window.localStorage.setItem('dnblog_token', result.token);
-                                window.localStorage.setItem('dnblog_user', result.username)
-                                alert('登陆成功,点击跳转');
+                                //window.localStorage.setItem('dnblog_user', result.username)
+                                //alert('登陆成功,点击跳转');
                                 window.location.replace("/user/index?name="+result.username);
                             }
                             else {

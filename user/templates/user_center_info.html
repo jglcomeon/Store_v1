@@ -5,6 +5,8 @@
 	<title>天天生鲜-用户中心</title>
 	<link rel="stylesheet" type="text/css" href="/static/css/reset.css">
 	<link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 </head>
 <body>
 	<div class="header_con">
@@ -24,18 +26,18 @@
 				</div>
 				<div class="user_link fl">
 					<span>|</span>
-					<a href="user_center_info.html">用户中心</a>
+					<a href="javascript:;" id="user_center">用户中心</a>
 					<span>|</span>
-					<a href="cart.html">我的购物车</a>
+					<a href="javascript:;" id="my_cart">我的购物车</a>
 					<span>|</span>
-					<a href="user_center_order.html">我的订单</a>
+					<a href="javascript:;" id="myorder_1">我的订单</a>
 				</div>
 			</div>
 		</div>		
 	</div>
 
 	<div class="search_bar clearfix">
-		<a href="index.html" class="logo fl"><img src="/static/images/logo.png"></a>
+		<a href="/user/index" class="logo fl"><img src="/static/images/logo.png"></a>
 		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
 		<div class="search_con fr">
 			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
@@ -47,12 +49,12 @@
 		<div class="left_menu_con clearfix">
 			<h3>用户中心</h3>
 			<ul>
-				<li><a href="user_center_info.html" class="active">· 个人信息</a></li>
-				<li><a href="user_center_order.html">· 全部订单</a></li>
-				<li><a href="user_center_site.html">· 收货地址</a></li>
+				<li><a href="javascript:;"  id="info">· 个人信息</a></li>
+				<li><a href="javascript:;" id="my_order">· 全部订单</a></li>
+				<li><a href="#" id="address">· 收货地址</a></li>
 			</ul>
 		</div>
-		<div class="right_content clearfix">
+		<div id="user_info"  class="right_content clearfix">
 				<div class="info_con clearfix">
 				<h3 class="common_title2">基本信息</h3>
 						<ul class="user_info_list">
@@ -84,39 +86,65 @@
 						<a href="#" class="add_goods" title="加入购物车"></a>
 					</div>
 				</li>
-
-				<li>
-					<a href="#"><img src="/static/images/goods/goods005.jpg"></a>
-					<h4><a href="#">黄肉桃</a></h4>
-					<div class="operate">
-						<span class="prize">￥10.00</span>
-						<span class="unit">10.00/500g</span>
-						<a href="#" class="add_goods" title="加入购物车"></a>
-					</div>
-				</li>
-
-				<li>
-					<a href="#"><img src="/static/images/goods/goods006.jpg"></a>
-					<h4><a href="#">进口西梅</a></h4>
-					<div class="operate">
-						<span class="prize">￥28.80</span>
-						<span class="unit">28.8/500g</span>
-						<a href="#" class="add_goods" title="加入购物车"></a>
-					</div>
-				</li>
-
-				<li>
-					<a href="#"><img src="/static/images/goods/goods007.jpg"></a>
-					<h4><a href="#">香梨</a></h4>
-					<div class="operate">
-						<span class="prize">￥6.45</span>
-						<span class="unit">6.45/500g</span>
-						<a href="#" class="add_goods" title="加入购物车"></a>
-					</div>
-				</li>
 			</ul>
 		</div>
 		</div>
+        <div id="address_1" style="display: none" class="right_content clearfix">
+				<h3 class="common_title2">收货地址</h3>
+				<div class="site_con">
+					<dl>
+						<dt>当前地址：</dt>
+						<dd id="t_ar"></dd>
+					</dl>
+				</div>
+				<h3 class="common_title2">编辑地址</h3>
+				<div class="site_con">
+					<form >
+                        {% csrf_token %}
+						<div class="form_group">
+							<label>收件人：</label>
+							<input type="text" name="re_name" id="re_name">
+						</div>
+						<div class="form_group form_group2">
+							<label>详细地址：</label>
+							<textarea class="site_area" id="detail_info" name="detail_info"></textarea>
+						</div>
+						<div class="form_group">
+							<label>邮编：</label>
+							<input type="text" name="postcode" id="postcode">
+						</div>
+						<div class="form_group">
+							<label>手机：</label>
+							<input type="text" name="phone_num" id="phone_num">
+						</div>
+                        <input type="text" id="id" style="display: none" name="id"/>
+
+						<input type="button" id="submit1"  value="提交" class="info_submit">
+					</form>
+				</div>
+		</div>
+        <div style="display: none" id="order_show" class="right_content clearfix">
+				<h3 class="common_title2">全部订单</h3>
+            <div id="order_add">
+
+            </div>
+
+
+				<div class="pagenation">
+					<a href="#">上一页</a>
+					<a href="#" class="active">1</a>
+					<a href="#">2</a>
+					<a href="#">3</a>
+					<a href="#">4</a>
+					<a href="#">5</a>
+					<a href="#">下一页></a>
+				</div>
+		</div>
+	</div>
+
+
+
+
 	</div>
 
 
@@ -136,4 +164,195 @@
 	</div>
 	
 </body>
+<script type="text/javascript">
+    $(function () {
+        token = window.localStorage.getItem('dnblog_token');
+        csrf = $.cookie('csrftoken');
+
+        $('#user_center').click(function () {
+
+
+             $.ajax({
+                 url:"/user/user_center",
+                 type:'post',
+                 data:{csrfmiddlewaretoken:csrf},
+                 beforeSend:function (request) {
+                     request.setRequestHeader("Authorization", token);
+                 },
+                 success:function (result) {
+                    if(result.code!=200){
+                        alert("由于您长时间未登陆，点击跳转登陆");
+                        window.location.replace("/user/login");
+
+                    }
+                    else window.location.replace("/user/user_center?token="+token);
+
+                 }
+
+             })
+        })
+          $('#my_cart' ).click(function () {
+              window.location.replace("/cart/my_cart?token="+token);
+          })
+
+        $('#my_order').click(function () {
+            $('#order_show').empty();
+            $(this).addClass('active');
+            $('#info').removeClass('active');
+            $('#address').removeClass('active');
+            $.ajax({
+                url:'/pay/my_order',
+                dataType:'json',
+                type:'post',
+                data:{csrfmiddlewaretoken:csrf},
+                beforeSend:function (request) {
+                    request.setRequestHeader("Authorization", token);
+                },
+                success:function (res) {
+                        $('#user_info').css('display', 'none');
+                        $('#order_show').css('display', 'inline-block');
+                        $('#address_1').css('display', 'none');
+                        //console.log(res);
+                        order = JSON.parse(res.orders)
+                        console.log(order);
+                        var j=0
+
+
+                        $.each(res.data,function (i,val) {
+                            val = JSON.parse(val);
+                            if(order[j].fields.is_pay==false)
+                            {
+                                var sin = '未支付';
+                                var sin2='<td width="15%"><a href="/pay/create_order?order_no='+order[j].pk+'" class="oper_btn">去付款</a></td>'
+                            }
+                            else {
+                                var sin = '已支付';
+                                var sin2='<td width="15%"><a href="javascript:;" class="oper_btn">查看物流</a></td>'
+                            }
+
+
+
+                            $('#order_show').append('<ul class="order_list_th w978 clearfix">\n' +
+                                '\t\t\t\t\t<li class="col01">'+order[j].fields.time+'</li>\n' +
+                                '\t\t\t\t\t<li class="col02">订单号：'+i+'</li>\n' +
+                                '\t\t\t\t\t<li class="col02 stress">'+sin+'</li>\n' +
+                                '\t\t\t\t</ul>')
+                            var html='';
+                            $.each(val,function (z,v) {
+                                //console.log(v);
+                                 html=html+'<ul class="order_goods_list clearfix">\n' +
+                                    '\t\t\t\t\t\t\t\t\t<li class="col01"><img src="/static/images/'+v.fields.gpic+'"></li>\n' +
+                                    '\t\t\t\t\t\t\t\t\t<li class="col02">'+v.fields.gtitle+'<em>'+v.fields.gprice+'元/'+v.fields.gunit+'</em></li>\n' +
+                                    '\t\t\t\t\t\t\t\t\t<li class="col03">'+v.fields.num+'</li>\n' +
+                                    '\t\t\t\t\t\t\t\t\t<li class="col04">'+v.fields.sum+'元</li>\n' +
+                                    '\t\t\t\t\t\t\t\t</ul>\n';
+                            })
+                            $('#order_show').append('<table class="order_list_table w980">\n' +
+                                '\t\t\t\t\t<tbody>\n' +
+                                '\t\t\t\t\t\t<tr>\n' +
+                                '\t\t\t\t\t\t\t<td width="55%">' +html+
+                                '</td>\n' +
+                                '\t\t\t\t\t\t\t<td width="15%">'+order[j].fields.money+'元</td>\n' +
+                                '\t\t\t\t\t\t\t<td width="15%">'+sin+'</td>\n' +
+                                sin2+'\n' +
+                                '\t\t\t\t\t\t</tr>\n' +
+                                '\t\t\t\t\t</tbody>\n' +
+                                '\t\t\t\t</table>')
+                            j=j+1;
+
+
+                        })
+
+                }
+
+
+
+            })
+
+
+        })
+
+        $('#myorder_1').click(function () {
+            $('#my_order').click();
+        })
+        $('#address').click(function () {
+            $(this).addClass('active');
+            $('#my_order').removeClass('active');
+            $('#info').removeClass('active');
+            $.ajax({
+                url:'/user/address',
+                type:'get',
+                dataType:'json',
+                async:'true',
+                beforeSend:function (request) {
+                    request.setRequestHeader("Authorization", token);
+                },
+                success:function (res) {
+                    if(res.code!='200')
+                    {
+                        alert("您还未填写收货地址，请在下面填写！");
+                        $('#user_info').css('display', 'none');
+                        $('#order_show').css('display', 'none');
+                        $('#address_1').css('display', 'inline-block')
+                    }
+                    else {
+                        $('#user_info').css('display', 'none');
+                        $('#address_1').css('display', 'inline-block')
+                        $('#t_ar').html(res.detail_info+' ( '+res.re_name + ' 收) '+res.phone_num);
+                        $('#re_name').val(res.re_name);
+                        $('#detail_info').val(res.detail_info);
+                        $('#postcode').val(res.postcode);
+                        $('#phone_num').val(res.phone_num);
+                        $('#id').val(res.id);
+                    }
+                }
+
+            })
+        })
+        $('#submit1').click(function () {
+            id = $('#id').val();
+            re_name = $('#re_name').val();
+            detail_info = $('#detail_info').val();
+            postcode = $('#postcode').val();
+            phone_num = $('#phone_num').val();
+            if(!re_name||!detail_info||!postcode||!phone_num)
+            {
+                alert("收件人或详细地址，邮编，手机号码，不能为空！");
+                return;
+            }
+            $.ajax({
+                url:'/user/address',
+                type:'post',
+                dataType:'json',
+                data:{'id':id,'re_name':re_name,'detail_info':detail_info,'postcode':postcode,'phone_num':phone_num,'csrfmiddlewaretoken':csrf},
+                async:true,
+                beforeSend:function (request) {
+                    request.setRequestHeader("Authorization", token);
+                },
+                success:function (res) {
+                    alert("修改成功！");
+                    $('#t_ar').html(detail_info+' ( '+re_name + ' 收) '+phone_num);
+                }
+
+            })
+
+
+        })
+        $('#info').click(function () {
+             $(this).addClass('active');
+            $('#my_order').removeClass('active');
+            $('#address').removeClass('active');
+            $('#user_info').css('display', 'inline-block');
+            $('#order_show').css('display', 'none');
+            $('#address_1').css('display', 'none');
+        })
+
+
+
+
+    })
+
+
+
+</script>
 </html>

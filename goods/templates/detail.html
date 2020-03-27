@@ -1,5 +1,6 @@
 {% extends 'index.html' %}
 {% block content1 %}
+
     <script>
     $(function () {
 
@@ -57,7 +58,63 @@
                $('#total_prices').html(total);
            }
        })
+        $('#buy').click(function () {
 
+
+                num =parseInt($('#num1').val());
+                sum = parseInt($('#total_prices').html());
+                csrf = $.cookie('csrftoken');
+                good_id={{good_info.id}}
+                token = window.localStorage.getItem('dnblog_token');
+            $.ajax({
+                    url:'/pay/create_order1',
+                    dataType:'json',
+                    data:{num:num,sum:sum,good_id:good_id,'csrfmiddlewaretoken':csrf},
+                    type:'post',
+                    beforeSend:function (request) {
+                        request.setRequestHeader("Authorization", token);
+                    },
+                    success:function (res) {
+
+
+                        if(res.code!='200')
+                            alert(res.error);
+                        else
+                            window.location.replace("/pay/create_order?order_no="+res.order_no);
+                    }
+                })
+
+
+
+        })
+    $('#add_cart').click(function () {
+        token = window.localStorage.getItem('dnblog_token');
+        $.ajax({
+            url:'/cart/add_goods/{{ good_info.id }}',
+            dataType: 'json',
+            data:{num:$('#num1').val()},
+            type:'get',
+            async: true,
+            beforeSend:function (request) {
+                request.setRequestHeader("Authorization", token);
+            },
+            success:function (res) {
+
+                if(res.code!='200'){
+                    alert("请先登陆！，点击前往登陆！");
+                    window.location.replace("/user/login");
+                }
+                else {
+                    $('#tip11').css('display','inline-block');
+                    setTimeout("$('#tip11').css('display','none')",10000);
+
+
+                }
+            }
+        })
+
+
+    })
 
     })
     </script>
@@ -87,7 +144,7 @@
 	<div class="breadcrumb">
 		<a href="#">全部分类</a>
 		<span>></span>
-		<a href="#">新鲜水果</a>
+		<a href="/goods/list?type={{ good_info.gtype_id }}">{{ name }}</a>
 		<span>></span>
 		<a href="#">商品详情</a>
 	</div>
@@ -114,9 +171,15 @@
 
 			<div class="total">总价：<em id="total_prices">{{ good_info.gprice }}</em></div>
 			<div class="operate_btn">
-				<a href="javascript:;" class="buy_btn">立即购买</a>
+				<a href="javascript:;" class="buy_btn" id="buy">立即购买</a>
 				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>
+
 			</div>
+             <div id="tip11" style="display: none;position: absolute;left: 800px;top: 440px;border: 1px solid #d6d6d6;width: 200px;height: 100px;text-align: center">
+                <img style="width: 20px;height: 20px;margin-top: 10px" src="/static/images/e4dd90770e1b820028403c8777d0fecb.jpg">
+                 <h2 style="margin-top: 10px">成功添加购物车！</h2>
+                 <span>您可以去<a style="color:#069">购物车查看</a></span>
+             </div>
 		</div>
 	</div>
 

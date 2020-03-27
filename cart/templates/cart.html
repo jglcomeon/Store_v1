@@ -1,0 +1,149 @@
+{% extends 'index.html' %}
+{% block content1 %}
+
+<div class="total_count">全部商品<em id="num1">2</em>件</div>
+	<ul class="cart_list_th clearfix">
+		<li class="col01">商品名称</li>
+		<li class="col02">商品单位</li>
+		<li class="col03">商品价格</li>
+		<li class="col04">数量</li>
+		<li class="col05">小计</li>
+		<li class="col06">操作</li>
+	</ul>
+    {% for data in carts%}
+        <ul class="cart_list_td clearfix">
+		<li class="col01"><input type="checkbox" value="{{ data.good_id }}_{{ data.num }}_{{ data.sum }}_{{ data.user_id }}" name="check01" checked></li>
+		<li class="col02"><img src="/static/images/{{ data.gpic }}"></li>
+		<li class="col03">{{ data.gtitle }}<br><em>{{ data.gprice }}元/{{ data.gunit }}</em></li>
+		<li class="col04">{{ data.gunit }}</li>
+		<li class="col05">{{ data.gprice }}元</li>
+		<li class="col06">
+			<div class="num_add">
+				<a href="/cart/add_cart?cart_id={{ data.id }}&user_id={{ data.user_id }}&good_id={{ data.good_id }}"  class="add fl">+</a>
+				<input type="text" id="" class="num_show fl" value="{{ data.num }}" readonly="true">
+				<a href="/cart/dec_cart?cart_id={{ data.id }}&user_id={{ data.user_id }}&good_id={{ data.good_id }}" id="dec1" class="minus fl">-</a>
+			</div>
+		</li>
+		<li class="col07">{{ data.sum }}元</li>
+		<li class="col08"><a href="/cart/delete?id={{ data.id }}">删除</a></li>
+	</ul>
+
+    {% endfor %}
+
+
+
+
+
+	<ul class="settlements">
+		<li class="col01"><input id="all_check" type="checkbox" name="" checked></li>
+		<li class="col02" >全选</li>
+		<li class="col03">合计(不含运费)：<span>¥</span><em id="sum1">0</em><br>共计<b id="num2">0.00</b>件商品</li>
+		<li class="col04"><a href="javascript:;" id="jie_suan">去结算</a></li>
+	</ul>
+
+     <script>
+        $(function () {
+
+            if(!$.cookie('username'))
+            {
+                alert("请先登陆！点击跳转");
+                window.location.replace('/user/login');
+            }
+            $("input[name=check01]:checked").each(function (index,item) {
+                $('#sum1').html(parseFloat($(this).val().split('_')[2])+ parseFloat($('#sum1').html()));
+            })
+
+            $('#num1').html($('input[name=check01]').length);
+            $('#num2').html($('input[name=check01]').length);
+            $('.col01').children('input').click(function () {
+                if($(this).prop("checked"))
+                {$('#num1').html(parseInt($('#num1').html())+1);
+                $('#num2').html(parseInt($('#num2').html())+1);
+                if(parseInt($('#num1').html())==$('input[name=check01]').length)
+                     $('#all_check').prop('checked',true);
+                 $('#sum1').html(parseFloat($('#sum1').html())+parseFloat($(this).val().split('_')[2]));
+
+                }
+                else {
+                    $('#num1').html(parseInt($('#num1').html())-1);
+                    $('#num2').html(parseInt($('#num2').html())-1);
+                    $('#sum1').html(parseFloat($('#sum1').html())-parseFloat($(this).val().split('_')[2]));
+                    $('#all_check').prop('checked',false);
+
+                }
+
+
+            })
+
+
+            $('#all_check').click(function () {
+
+                if($(this).prop("checked"))
+                {
+                    $('input[type=checkbox]').prop('checked',true);
+                    $('#num1').html($('input[name=check01]').length);
+                    $('#num2').html($('input[name=check01]').length);
+                    $('#sum1').html(0);
+                    $("input[name=check01]:checked").each(function (index,item) {
+                      $('#sum1').html(parseFloat($(this).val().split('_')[2])+ parseFloat($('#sum1').html()));
+                    })
+                }
+                else
+                {
+                    $('input[type=checkbox]').prop('checked',false);
+                     $('#num1').html(0);
+                      $('#num2').html(0);
+                      $('#sum1').html(0);
+                }
+
+
+            })
+
+            $('#jie_suan').click(function () {
+                var data=[];
+
+
+
+                sum = $('#sum1').html();
+                num = $('#num1').html();
+                order = {sum:sum,num:num,user_id:{{ user_id }}};
+                token = window.localStorage.getItem('dnblog_token');
+               
+
+
+                $("input[name=check01]:checked").each(function (index,item) {
+                    data1={
+                        good_id:$(this).val().split('_')[0],
+                        num:$(this).val().split('_')[1],
+                        sum:$(this).val().split('_')[2],
+                        user_id:$(this).val().split('_')[3]
+                    }
+                    data.push(data1)
+                })
+                $.ajax({
+                    url:'/pay/create_order',
+                    dataType:'json',
+                    data:{order:JSON.stringify(order),data:JSON.stringify(data)},
+                    type:'post',
+                    beforeSend:function (request) {
+                        request.setRequestHeader("Authorization", token);
+                    },
+                    success:function (res) {
+
+                        if(res.code!='200')
+                            alert(res.error);
+                        else
+                            window.location.replace("/pay/create_order?order_no="+res.order_no);
+                    }
+                })
+
+
+
+
+
+            })
+
+        })
+
+    </script>
+{% endblock %}

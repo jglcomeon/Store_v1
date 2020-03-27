@@ -7,4 +7,5 @@ urlpatterns=[
     url(r'/login$',views.login),
     url(r'/index$',views.index),
     url(r'/user_center$',views.user_center),
+    url(r'/address$',views.get_address),
 ]
