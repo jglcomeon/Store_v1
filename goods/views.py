@@ -2,6 +2,8 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse,JsonResponse
 from django.shortcuts import render
 # Create your views here.
+from django.views.decorators.csrf import csrf_exempt
+
 from goods.models import GoodsInfo, TypeInfo
 from django.core import serializers
 
@@ -10,6 +12,8 @@ def goods_detail(request):
     id = request.GET.get('id')
     try:
         good_info = GoodsInfo.objects.get(id=id)
+        good_info.gclick+=1
+        good_info.save()
 
         name = good_info.gtype.title
     except:
@@ -17,6 +21,7 @@ def goods_detail(request):
 
 
     return render(request,'detail.html',locals())
+# 商品推荐
 def get_recommend1(request):
 
     gtype = request.GET.get('gtype')
@@ -35,6 +40,7 @@ def good_list(request):
     page = paginator.page(cur_page)
     return render(request,'list.html',locals())
 #根据价格获取商品列表
+@csrf_exempt
 def good_list1(request):
     gtype = request.GET.get('type')
     sign =request.GET.get('sign')
@@ -48,4 +54,34 @@ def good_list1(request):
     cur_page = request.GET.get('page', 1)
     page = paginator.page(cur_page)
     return render(request, 'list.html', locals())
+#商品搜索
+def good_serch(request):
+
+    if request.method == 'POST':
+        val = request.POST.get('val')
+
+        goods = GoodsInfo.objects.filter(gtitle__contains=val)
+        types = TypeInfo.objects.filter(title__contains=val)
+
+        if goods or types:
+            result = {'code':200,'data':serializers.serialize('json',goods),'data1':serializers.serialize('json',types)}
+
+        else:
+            result = {'code':404}
+        return JsonResponse(result)
+    elif request.method == 'GET':
+        val = request.GET.get('val')
+
+        goods = GoodsInfo.objects.filter(gtitle__contains=val)
+        types = TypeInfo.objects.filter(title__contains=val)
+        if not goods and not types:
+            result = None
+
+        else:
+            result = {'data':goods,'data1': types}
+        print(result)
+
+        return render(request,'search_lists.html',locals())
+
+
 

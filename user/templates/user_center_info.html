@@ -31,6 +31,9 @@
 					<a href="javascript:;" id="my_cart">我的购物车</a>
 					<span>|</span>
 					<a href="javascript:;" id="myorder_1">我的订单</a>
+                    <span>|</span>
+					<a href="javascript:;" id="quit">退出</a>
+
 				</div>
 			</div>
 		</div>		
@@ -40,8 +43,10 @@
 		<a href="/user/index" class="logo fl"><img src="/static/images/logo.png"></a>
 		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
 		<div class="search_con fr">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
+			<form action="/goods/search">
+			    <input type="text" id="s_e" class="input_text fl" name="val" placeholder="搜索商品">
+			    <input type="submit" class="input_btn fr" name="" value="搜索">
+            </form>
 		</div>		
 	</div>
 
@@ -147,7 +152,9 @@
 
 	</div>
 
+    <div id="search_c" style="display:none;border: 1px solid #d6d6d6;width: 515px;position:absolute;left: 600px;top: 103px;z-index:1;opacity: 50;background:white">
 
+    </div>
 
 	<div class="footer">
 		<div class="foot_link">
@@ -347,7 +354,56 @@
             $('#address_1').css('display', 'none');
         })
 
+    $('#quit').click(function () {
+            window.localStorage.removeItem('dnblog_token');
+            window.localStorage.removeItem('dnblog_user');
 
+
+
+            window.location.replace('/user/delete')
+
+        })
+        $('#s_e').keyup(function () {
+            val = $(this).val().trim();
+            if(val)
+            {   csrf = $.cookie('csrftoken')
+                $.ajax({
+                url:"/goods/search",
+                dataType: 'json',
+                data:{val:val,csrfmiddlewaretoken:csrf},
+                type: 'post',
+                success:function (res) {
+                    if(res.code=='404')
+                        return;
+                    else if(res.code=='200')
+                    {
+                        res.data=JSON.parse(res.data);
+                        res.data1 = JSON.parse(res.data1);
+
+                        $('#search_c').css('display','inline-block');
+                        $('#search_c').empty();
+
+                        $.each(res.data,function (i,value) {
+
+                        $('#search_c').append('<p style="margin-top: 10px;margin-left:10px"><a href="/goods/detail?id='+value.pk+'">'+value.fields.gtitle+'</a></p>')
+
+                    })
+                        $.each(res.data1,function (i,value) {
+
+                        $('#search_c').append('<p style="margin-top: 10px;margin-left:10px"><a href="/goods/list?type='+value.pk+'">'+value.fields.title+'</a></p>')
+
+                    })
+
+                    }
+                }
+
+
+
+                })
+            }
+
+
+        })
 
 
     })

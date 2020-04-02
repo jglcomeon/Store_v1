@@ -2,7 +2,7 @@ import hashlib
 import time
 
 from django.http import HttpResponse,JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.template import loader
 from goods.models import TypeInfo
 from django.core import serializers
@@ -55,6 +55,7 @@ def check_name(request):
         return HttpResponse("0")
     except:
         return HttpResponse("1")
+#验证用户登陆信息
 def login(request):
     if request.method == 'GET':
         return render(request,'login.html')
@@ -81,6 +82,7 @@ def login(request):
         responses.set_cookie('username',name,1800)
 
         return responses
+#获取首页数据
 def index(request):
     name = request.GET.get('name')
     types = TypeInfo.objects.all()
@@ -93,7 +95,7 @@ def index(request):
 
 
     return render(request,'index.html',locals())
-
+#获取用户信息
 @check_login
 def user_center(request):
     if request.method == 'POST':
@@ -109,6 +111,7 @@ def user_center(request):
             return HttpResponse('非法访问！')
 
         return render(request,'user_center_info.html',locals())
+#获取用户收货地址或修改
 @check_login
 def get_address(request):
         if request.method =='GET':
@@ -138,6 +141,10 @@ def get_address(request):
             print(result)
             return JsonResponse(result)
 
+def user_quit(request):
+    resp =redirect('/user/login')
+    resp.delete_cookie('username')
+    return resp
 
 
 

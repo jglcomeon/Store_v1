@@ -32,6 +32,8 @@
 					<a href="#" id="my_cart1">我的购物车</a>
 					<span>|</span>
 					<a href="javascript:;" id="my_order">我的订单</a>
+                    <span>|</span>
+					<a href="javascript:;" id="quit">退出</a>
 				</div>
 			</div>
 		</div>		
@@ -40,8 +42,10 @@
 	<div class="search_bar clearfix">
 		<a href="/user/index" class="logo fl"><img src="/static/images/logo.png"></a>
 		<div class="search_con fl">
-			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
-			<input type="button" class="input_btn fr" name="" value="搜索">
+            <form action="/goods/search">
+			    <input type="text" id="s_e" class="input_text fl" name="val" placeholder="搜索商品">
+			    <input type="submit" class="input_btn fr" name="" value="搜索">
+            </form>
 		</div>
 		<div class="guest_cart fr">
 			<a href="#" class="cart_name fl" id="my_cart">我的购物车</a>
@@ -54,8 +58,7 @@
 			<h1 class="fl">全部商品分类</h1>
 			<ul class="navlist fl">
 				<li><a href="">首页</a></li>
-				<li class="interval">|</li>
-				<li><a href="">抽奖</a></li>
+
 			</ul>
 		</div>
 	</div>
@@ -229,6 +232,9 @@
 		</div>
 	</div>
 {% endblock %}
+    <div id="search_c" style="display:none;border: 1px solid #d6d6d6;width: 515px;position:absolute;left: 309px;top: 103px;z-index:1;opacity: 50;background:white">
+
+    </div>
 	<div class="footer">
 		<div class="foot_link">
 			<a href="#">关于我们</a>
@@ -270,6 +276,47 @@
 
                }
            )
+        $('#s_e').keyup(function () {
+            val = $(this).val().trim();
+            if(val)
+            {   csrf = $.cookie('csrftoken')
+                $.ajax({
+                url:"/goods/search",
+                dataType: 'json',
+                data:{val:val,csrfmiddlewaretoken:csrf},
+                type: 'post',
+                success:function (res) {
+                    if(res.code=='404')
+                        return;
+                    else if(res.code=='200')
+                    {
+                        res.data=JSON.parse(res.data);
+                        res.data1 = JSON.parse(res.data1);
+
+                        $('#search_c').css('display','inline-block');
+                        $('#search_c').empty();
+
+                        $.each(res.data,function (i,value) {
+
+                        $('#search_c').append('<p style="margin-top: 10px;margin-left:10px"><a href="/goods/detail?id='+value.pk+'">'+value.fields.gtitle+'</a></p>')
+
+                    })
+                        $.each(res.data1,function (i,value) {
+
+                        $('#search_c').append('<p style="margin-top: 10px;margin-left:10px"><a href="/goods/list?type='+value.pk+'">'+value.fields.title+'</a></p>')
+
+                    })
+
+                    }
+                }
+
+
+
+                })
+            }
+
+
+        })
 
 
             $('#user_center').click(function () {
@@ -303,6 +350,16 @@
         $('#my_order').click(function () {
             window.location.replace('/user/user_center?token='+token);
         })
+            
+        $('#quit').click(function () {
+            window.localStorage.removeItem('dnblog_token');
+            window.localStorage.removeItem('dnblog_user');
+
+
+
+            window.location.replace('/user/delete')
+
+        })    
 
 		BCSlideshow('focuspic');
 		var oFruit = document.getElementById('fruit_more');

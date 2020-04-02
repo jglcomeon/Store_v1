@@ -1,0 +1,18 @@
+{% extends 'index.html' %}
+{% block content1 %}
+    <div style="text-align: center">
+    {% if not result %}
+        <p>无搜索结果</p>
+    {% else %}
+
+        {% for data in result.data %}
+            <p style="margin-top: 10px;margin-left:10px"><a href="/goods/detail?id={{ data.id }}">{{ data.gtitle }}</a></p>
+        {% endfor %}
+        {% for data1 in result.data1%}
+            <p style="margin-top: 10px;margin-left:10px"><a href="/goods/list?type={{ data1.id }}">{{ data1.title }}</a></p>
+        {% endfor %}
+    {% endif %}
+
+    </div>
+
+{% endblock %}

@@ -8,4 +8,5 @@ urlpatterns=[
     url(r'/index$',views.index),
     url(r'/user_center$',views.user_center),
     url(r'/address$',views.get_address),
+    url(r'/delete$',views.user_quit),
 ]

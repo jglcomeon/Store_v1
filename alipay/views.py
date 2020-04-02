@@ -58,7 +58,7 @@ def create_order1(request):
         return JsonResponse(result)
     result = {'code': 200, 'order_no': order_no}
     return JsonResponse(result)
-
+#生成订单
 @csrf_exempt
 def create_order(request):
     if request.method == 'POST':
@@ -110,6 +110,7 @@ def create_order(request):
 
 
         return render(request,'order.html',locals())
+#查看用户自己的订单
 @check_login
 def my_order(request):
     if request.method == 'POST':
